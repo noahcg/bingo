@@ -1,3 +1,7 @@
 .table {
   text-align: center;
 }
+.game-window {
+  height: 250px;
+  width: 200px;
+}
