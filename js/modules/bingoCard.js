@@ -3,8 +3,8 @@ export default class BingoCard {
     this.rows = rows;
     this.columns = 5;
     this.freeSpace = "⭐️";
-    this.createCard = function () {
-      const m = document.getElementsByClassName("game-window")[0],
+    this.createCard = function (gw, i) {
+      const m = gw,
         t = document.createElement("table"),
         th = document.createElement("thead"),
         tb = document.createElement("tbody"),
@@ -16,7 +16,7 @@ export default class BingoCard {
       t.appendChild(tb);
       m.appendChild(c);
 
-      document.getElementsByTagName("thead")[0].innerHTML =
+      document.getElementsByTagName("thead")[i].innerHTML =
         "<tr><th>B</th><th>I</th><th>N</th><th>G</th><th>O</th></tr>";
 
       t.classList.add("table", "table-striped", "table-sm");
@@ -29,20 +29,24 @@ export default class BingoCard {
     this.createColumns = function () {
       return document.createElement("td");
     };
-    this.createGrid = function () {
-      const t = document.querySelector("tbody");
+    this.createGrid = function (i) {
+      const t = document.getElementsByTagName("tbody")[i];
       for (let i = 0; i < this.rows; i++) {
         t.appendChild(this.createRows());
       }
-      const r = document.querySelector("tbody").getElementsByTagName("tr");
+      const r = document
+        .getElementsByTagName("tbody")
+        [i].getElementsByTagName("tr");
       for (let j = 0; j < this.columns; j++) {
         for (let k = 0; k < r.length; k++) {
           r[k].appendChild(this.createColumns());
         }
       }
     };
-    this.addGridNumbers = function () {
-      const tds = document.querySelector("tbody").getElementsByTagName("td");
+    this.addGridNumbers = function (i) {
+      const tds = document
+        .getElementsByTagName("tbody")
+        [i].getElementsByTagName("td");
 
       let arr = [],
         gridLength = this.rows * this.columns;
@@ -60,10 +64,10 @@ export default class BingoCard {
         }
       }
     };
-    this.init = function () {
-      this.createCard();
-      this.createGrid();
-      this.addGridNumbers();
+    this.init = function (gw, i) {
+      this.createCard(gw, i);
+      this.createGrid(i);
+      this.addGridNumbers(i);
     };
   }
 }

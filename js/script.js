@@ -1,13 +1,15 @@
 import BingoCard from "./modules/bingoCard.js";
 import Person from "./modules/person.js";
 
-const myCard = new BingoCard(5);
-myCard.init();
-
-const players = [];
+const addPlayerButton = document.getElementById("addPlayerButton"),
+  players = [];
 
 function createPlayer(name) {
   return new Person(name);
+}
+
+function createCard(r) {
+  return new BingoCard(r);
 }
 
 function addCardToPlayer(player) {
@@ -16,13 +18,15 @@ function addCardToPlayer(player) {
   } else {
     for (let i = 0; i < players.length; i++) {
       if (players[i].name == player) {
+        const gw = document.getElementsByClassName("game-window")[i];
         players[i].hasCard = true;
+        players[i].board = createCard(5).init(gw, i);
       }
     }
   }
 }
 
-function displayPlayers(arr) {
+function displayPlayers(arr, callback) {
   const table = document.createElement("table"),
     th = document.createElement("thead"),
     tb = document.createElement("tbody"),
@@ -63,6 +67,7 @@ function displayPlayers(arr) {
     row.getElementsByClassName("player-name")[0].append(playerName);
     tb.appendChild(row);
   }
+  callback(arr);
 }
 
 function resetModal() {
@@ -70,29 +75,45 @@ function resetModal() {
   thing.value = "";
 }
 
-const addPlayerButton = document.getElementById("addPlayerButton"),
-  playerModal = document.getElementById("exampleModal");
+function createPlayerUICard(players) {
+  const container = document.getElementById("player-row");
+  let template;
+
+  players.forEach(function (item, index) {
+    template = `<div class="col-md-6">
+      <div
+        class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative"
+      >
+        <div class="col p-4 d-flex flex-column position-static player-info">
+          <strong class="d-inline-block mb-2 text-primary">Player</strong>
+          <h3 class="mb-0">${item.name}</h3>
+          <p class="card-text mb-auto">${
+            !item.hasCard
+              ? "I'm a new player, I don't have any bingo cards yet."
+              : "Great! Now I have a bingo card."
+          }</p>
+        </div>
+        <div class="col-auto p-4 game-window"></div>
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML += template;
+}
 
 addPlayerButton.addEventListener("click", function () {
   let newPlayer = document.getElementById("playerNameInput").value;
   players.push(createPlayer(newPlayer));
-  displayPlayers(players);
+
+  displayPlayers(players, function (arr) {
+    for (let i = 0; i < arr.length; i++) {
+      const addCardButton = document.getElementsByClassName("add-card")[i];
+      addCardButton.addEventListener("click", function () {
+        addCardToPlayer(arr[i].name);
+      });
+    }
+  });
+
   resetModal();
-  displayPlayerInfo(players);
+  createPlayerUICard(players);
 });
-
-function displayPlayerInfo(arr) {
-  const nameField = document.getElementsByClassName("player-info")[0]
-      .childNodes[3],
-    textField = document.getElementsByClassName("player-info")[0].childNodes[5];
-
-  for (let i = 0; i < arr.length; i++) {
-    const pName = arr[i].name,
-      pHasCard = arr[i].hasCard;
-
-    nameField.append(pName);
-    textField.append(pHasCard);
-  }
-}
-
-displayPlayerInfo(players);
