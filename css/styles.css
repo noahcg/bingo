@@ -5,3 +5,12 @@
   height: 250px;
   width: 200px;
 }
+
+.game-window .table {
+  margin: 0;
+}
+
+.bi-star-fill {
+  position: relative;
+  top: -2px;
+}

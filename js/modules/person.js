@@ -1,7 +1,8 @@
 export default class Person {
-  constructor(name) {
-    this.name = name;
-    this.hasCard = false;
+  constructor(obj) {
+    this.id = Math.floor(100 + Math.random() * 900);
+    this.name = obj.name;
+    this.hasCard = obj.hasCard;
     this.board = {};
   }
 }
