@@ -85,10 +85,7 @@ function newPlayerModal() {
 }
 
 function editPlayer(id) {
-  let editPlayerForm,
-    modalBody = document.getElementById("mbody"),
-    nameField,
-    hasCardField;
+  let editPlayerForm, nameField, hasCardField;
 
   modalInstance.setContent(`<div class="modal-header">
     <h5 class="modal-title" id="exampleModalLabel">Edit Player</h5>
@@ -171,6 +168,55 @@ function editPlayer(id) {
   }
 }
 
+function deletePlayer(id) {
+  let deletePlayerForm;
+
+  modalInstance.setContent(`<div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">Delete Player</h5>
+    <button
+      type="button"
+      class="close"
+      data-dismiss="modal"
+      aria-label="Close"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div id="mbody" class="modal-body"></div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-secondary"
+      data-dismiss="modal"
+    >
+      Close
+    </button>
+    <button
+      id="deletePlayerButton"
+      type="button"
+      class="btn btn-danger"
+      data-dismiss="modal"
+    >
+      Delete Player
+    </button>
+  </div>`);
+
+  for (let i = 0; i < players.length; i++) {
+    if (parseInt(id, 10) === players[i].id) {
+      deletePlayerForm = `<p class="lead">Are you sure you want to remove <strong>${players[i].name}</strong> from the game?</p>`;
+
+      mbody.innerHTML = deletePlayerForm;
+
+      const deleteButton = document.getElementById("deletePlayerButton");
+
+      deleteButton.addEventListener("click", function () {
+        players.splice(players.indexOf(players[i]), 1);
+        displayPlayerTable(players);
+      });
+    }
+  }
+}
+
 function playerInfo() {
   const nameField = document.getElementById("playerNameInput"),
     hasCardField = document.getElementById("hasCardToggle"),
@@ -195,20 +241,14 @@ function displayPlayerTable(arr) {
       .map(
         (ar) => `
       <tr><td>${ar.name}</td>
-      <td>
-          <button class='btn btn-primary add-card'>
-            <svg class="bi bi-table" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd" d="M14 1H2a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V2a1 1 0 00-1-1zM2 0a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V2a2 2 0 00-2-2H2z" clip-rule="evenodd"/>
-              <path fill-rule="evenodd" d="M15 4H1V3h14v1z" clip-rule="evenodd"/>
-              <path fill-rule="evenodd" d="M5 15.5v-14h1v14H5zm5 0v-14h1v14h-1z" clip-rule="evenodd"/>
-              <path fill-rule="evenodd" d="M15 8H1V7h14v1zm0 4H1v-1h14v1z" clip-rule="evenodd"/>
-              <path d="M0 2a2 2 0 012-2h12a2 2 0 012 2v2H0V2z"/>
-            </svg>
-          </button>
-        </td>
         <td>
           <button id="edit-player" class='btn btn-primary' data-player-id="${ar.id}">
             Edit
+          </button>
+        </td>
+        <td>
+          <button id="delete-player" class='btn btn-primary' data-player-id="${ar.id}">
+            Delete
           </button>
         </td>
       </tr>
@@ -233,6 +273,14 @@ document.addEventListener("click", function (e) {
     modalInstance.show();
     const id = e.target.dataset.playerId;
     editPlayer(id);
+  }
+});
+
+document.addEventListener("click", function (e) {
+  if (e.target && e.target.id === "delete-player") {
+    modalInstance.show();
+    const id = e.target.dataset.playerId;
+    deletePlayer(id);
   }
 });
 
