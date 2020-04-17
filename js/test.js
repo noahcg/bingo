@@ -2,10 +2,11 @@ import BingoCard from "./modules/bingoCard.js";
 import Person from "./modules/person.js";
 
 const addPlayerButton = document.getElementsByClassName("add-player-button")[0],
-  players = [],
-  playerTableRow = document.getElementById("player-row");
+  data = {
+    players: [],
+  };
 
-let newModal = document.getElementById("exampleModal"),
+let playerModal = document.getElementById("playerModal"),
   modalInstance;
 
 // @param {string} name - Name of the player.
@@ -19,9 +20,9 @@ function createCard(r) {
 }
 
 function newPlayerModal() {
-  modalInstance = new Modal(newModal, {
+  modalInstance = new Modal(playerModal, {
     content: `<div class="modal-header">
-      <h5 class="modal-title" id="exampleModalLabel">Add New Player</h5>
+      <h5 class="modal-title" id="playerModalLabel">Add New Player</h5>
       <button
         type="button"
         class="close"
@@ -32,7 +33,7 @@ function newPlayerModal() {
       </button>
     </div>
     <div class="modal-body">
-    <form>
+    <form id="player-data">
       <div class="form-group">
         <label for="exampleInputEmail1">Name</label>
         <input
@@ -85,40 +86,51 @@ function newPlayerModal() {
 }
 
 function editPlayer(id) {
-  let editPlayerForm, nameField, hasCardField;
+  let editPlayerForm,
+    nameField,
+    hasCardField,
+    editPlayerTemplate = `<div class="modal-header">
+      <h5 class="modal-title" id="playerModalLabel">Edit Player</h5>
+      <button
+        type="button"
+        class="close"
+        data-dismiss="modal"
+        aria-label="Close"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div id="mbody" class="modal-body"></div>
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        data-dismiss="modal"
+      >
+        Close
+      </button>
+      <button
+        id="saveEditedPlayerButton"
+        type="button"
+        class="btn btn-primary"
+        data-dismiss="modal"
+      >
+        Edit Player
+      </button>
+    </div>`;
 
-  modalInstance.setContent(`<div class="modal-header">
-    <h5 class="modal-title" id="exampleModalLabel">Edit Player</h5>
-    <button
-      type="button"
-      class="close"
-      data-dismiss="modal"
-      aria-label="Close"
-    >
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div id="mbody" class="modal-body"></div>
-  <div class="modal-footer">
-    <button
-      type="button"
-      class="btn btn-secondary"
-      data-dismiss="modal"
-    >
-      Close
-    </button>
-    <button
-      id="saveEditedPlayerButton"
-      type="button"
-      class="btn btn-primary"
-      data-dismiss="modal"
-    >
-      Edit Player
-    </button>
-  </div>`);
+  if (!modalInstance) {
+    modalInstance = new Modal(playerModal, {
+      content: editPlayerTemplate,
+      backdrop: "static",
+      keyboard: false,
+    });
+  } else {
+    modalInstance.setContent(editPlayerTemplate);
+  }
 
-  for (let i = 0; i < players.length; i++) {
-    if (parseInt(id, 10) === players[i].id) {
+  for (let i = 0; i < data.players.length; i++) {
+    if (parseInt(id, 10) === data.players[i].id) {
       editPlayerForm = `<form>
         <div class="form-group">
           <label for="exampleInputEmail1">Name</label>
@@ -127,7 +139,7 @@ function editPlayer(id) {
             class="form-control"
             id="playerNameInput"
             aria-describedby="playerName"
-            value="${players[i].name}"
+            value="${data.players[i].name}"
           />
           <small id="playerName" class="form-text text-muted"
             >Please add the name of a player.</small
@@ -139,10 +151,10 @@ function editPlayer(id) {
             id="hasCardToggle"
             type="button"
             class="btn btn-md btn-toggle d-block ${
-              players[i].hasCard ? "active" : ""
+              data.players[i].hasCard ? "active" : ""
             }"
             data-toggle="button"
-            aria-pressed="${players[i].hasCard}"
+            aria-pressed="${data.players[i].hasCard}"
             autocomplete="off"
           >
             <div class="handle"></div>
@@ -158,63 +170,74 @@ function editPlayer(id) {
       hasCardField = document.getElementById("hasCardToggle");
 
       updateButton.addEventListener("click", function () {
-        players[i].name = nameField.value;
-        players[i].hasCard = JSON.parse(
+        data.players[i].name = nameField.value;
+        data.players[i].hasCard = JSON.parse(
           hasCardField.getAttribute("aria-pressed")
         );
-        displayPlayerTable(players);
+        renderPlayerTable();
       });
     }
   }
+  modalInstance.show();
 }
 
 function deletePlayer(id) {
-  let deletePlayerForm;
+  let deletePlayerForm,
+    deletePlayerTemplate = `<div class="modal-header">
+      <h5 class="modal-title" id="playerModalLabel">Delete Player</h5>
+      <button
+        type="button"
+        class="close"
+        data-dismiss="modal"
+        aria-label="Close"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div id="mbody" class="modal-body"></div>
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        data-dismiss="modal"
+      >
+        Close
+      </button>
+      <button
+        id="deletePlayerButton"
+        type="button"
+        class="btn btn-danger"
+        data-dismiss="modal"
+      >
+        Delete Player
+      </button>
+    </div>`;
 
-  modalInstance.setContent(`<div class="modal-header">
-    <h5 class="modal-title" id="exampleModalLabel">Delete Player</h5>
-    <button
-      type="button"
-      class="close"
-      data-dismiss="modal"
-      aria-label="Close"
-    >
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div id="mbody" class="modal-body"></div>
-  <div class="modal-footer">
-    <button
-      type="button"
-      class="btn btn-secondary"
-      data-dismiss="modal"
-    >
-      Close
-    </button>
-    <button
-      id="deletePlayerButton"
-      type="button"
-      class="btn btn-danger"
-      data-dismiss="modal"
-    >
-      Delete Player
-    </button>
-  </div>`);
+  if (!modalInstance) {
+    modalInstance = new Modal(playerModal, {
+      content: deletePlayerTemplate,
+      backdrop: "static",
+      keyboard: false,
+    });
+  } else {
+    modalInstance.setContent(deletePlayerTemplate);
+  }
 
-  for (let i = 0; i < players.length; i++) {
-    if (parseInt(id, 10) === players[i].id) {
-      deletePlayerForm = `<p class="lead">Are you sure you want to remove <strong>${players[i].name}</strong> from the game?</p>`;
+  for (let i = 0; i < data.players.length; i++) {
+    if (parseInt(id, 10) === data.players[i].id) {
+      deletePlayerForm = `<p class="lead">Are you sure you want to remove <strong>${data.players[i].name}</strong> from the game?</p>`;
 
       mbody.innerHTML = deletePlayerForm;
 
       const deleteButton = document.getElementById("deletePlayerButton");
 
       deleteButton.addEventListener("click", function () {
-        players.splice(players.indexOf(players[i]), 1);
-        displayPlayerTable(players);
+        data.players.splice(data.players.indexOf(data.players[i]), 1);
+        renderPlayerTable();
       });
     }
   }
+  modalInstance.show();
 }
 
 function playerInfo() {
@@ -228,49 +251,79 @@ function playerInfo() {
   return playerData;
 }
 
-function displayPlayerTable(arr) {
-  let tableTemplate = `<table id="player-table" class="table table-striped table-dark">
-    <thead>
-      <tr>
-        <th>Players</th>
-        <th colspan="2">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-    ${arr
-      .map(
-        (ar) => `
-      <tr><td>${ar.name}</td>
-        <td>
-          <button id="edit-player" class='btn btn-primary' data-player-id="${ar.id}">
-            Edit
-          </button>
-        </td>
-        <td>
-          <button id="delete-player" class='btn btn-primary' data-player-id="${ar.id}">
-            Delete
-          </button>
-        </td>
-      </tr>
-    `
-      )
-      .join("")}
-    </tbody>
-  </table>`;
+function playerTableRowTemplate() {
+  let playerList = data.players.map(function (player) {
+    return `<tr><td>${player.name}</td>
+      <td>
+        <button id="edit-player" class='btn btn-primary' data-player-id="${player.id}">
+          Edit
+        </button>
+      </td>
+      <td>
+        <button id="delete-player" class='btn btn-primary' data-player-id="${player.id}">
+          Delete
+        </button>
+      </td>
+    </tr>`;
+  });
 
-  playerTableRow.innerHTML = tableTemplate;
+  let html = "";
+
+  if (playerList.length > 0) {
+    html += `<table id="player-table" class="table table-striped table-dark">
+      <thead>
+        <tr>
+          <th>Players</th>
+          <th colspan="2">Actions</th>
+        </tr>
+      </thead>
+      <tbody>${playerList.join("")}</tbody>
+    </table>`;
+  }
+
+  return html;
+}
+
+// Emit a custom event
+function emitEvent(elem, detail) {
+  // Create a new event
+  let event = new CustomEvent("render", {
+    bubbles: true,
+    cancelable: true,
+    detail: detail || {},
+  });
+
+  // Dispatch the event
+  elem.dispatchEvent(event);
+}
+
+function renderPlayerTable() {
+  let playerTableRow = document.getElementById("player-row");
+  if (!playerTableRow) return;
+  playerTableRow.innerHTML = playerTableRowTemplate();
+  emitEvent(playerTableRow, data);
+}
+
+function getPlayersFromLocalStorage() {
+  var players = localStorage.getItem("playerInfo");
+  if (players) {
+    data.players = JSON.parse(players);
+  }
+}
+
+function saveToLocalStorage(event) {
+  localStorage.setItem("playerInfo", JSON.stringify(event.detail.players));
 }
 
 document.addEventListener("click", function (e) {
   if (e.target && e.target.id === "savePlayerButton") {
-    players.push(createPlayer(playerInfo()));
-    displayPlayerTable(players);
+    data.players.push(createPlayer(playerInfo()));
+    renderPlayerTable();
   }
 });
 
 document.addEventListener("click", function (e) {
   if (e.target && e.target.id === "edit-player") {
-    modalInstance.show();
     const id = e.target.dataset.playerId;
     editPlayer(id);
   }
@@ -278,7 +331,6 @@ document.addEventListener("click", function (e) {
 
 document.addEventListener("click", function (e) {
   if (e.target && e.target.id === "delete-player") {
-    modalInstance.show();
     const id = e.target.dataset.playerId;
     deletePlayer(id);
   }
@@ -287,3 +339,8 @@ document.addEventListener("click", function (e) {
 addPlayerButton.addEventListener("click", function () {
   newPlayerModal();
 });
+
+document.addEventListener("render", saveToLocalStorage, false);
+
+getPlayersFromLocalStorage();
+renderPlayerTable();
